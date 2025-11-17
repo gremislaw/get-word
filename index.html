@@ -1,34 +1,27 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Word API</title>
+    <title>Russian Words API</title>
 </head>
 <body>
     <script>
-        // Простой API который возвращает случайное слово
-        async function getRandomWord(length) {
-            const response = await fetch('words.json');
-            const data = await response.json();
-            const words = data[length] || data["5"];
-            const randomIndex = Math.floor(Math.random() * words.length);
-            return words[randomIndex];
-        }
-
-        // Обработка запросов
-        self.addEventListener('fetch', event => {
-            const url = new URL(event.request.url);
-            if (url.pathname === '/word') {
-                event.respondWith(handleWordRequest(url));
-            }
-        });
-
-        async function handleWordRequest(url) {
-            const length = url.searchParams.get('length') || '5';
-            const word = await getRandomWord(length);
-            return new Response(JSON.stringify({word: word}), {
-                headers: {'Content-Type': 'application/json'}
+        fetch('words.json')
+            .then(response => response.json())
+            .then(words => {
+                const urlParams = new URLSearchParams(window.location.search);
+                const length = urlParams.get('length') || '5';
+                const wordList = words[length] || words["5"];
+                
+                if (wordList && wordList.length > 0) {
+                    const randomWord = wordList[Math.floor(Math.random() * wordList.length)];
+                    document.write(JSON.stringify({word: randomWord}));
+                } else {
+                    document.write(JSON.stringify({word: "СЛОВО"}));
+                }
+            })
+            .catch(error => {
+                document.write(JSON.stringify({word: "ОШИБКА"}));
             });
-        }
     </script>
 </body>
 </html>
