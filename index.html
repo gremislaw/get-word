@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Word API</title>
+</head>
+<body>
+    <script>
+        // Простой API который возвращает случайное слово
+        async function getRandomWord(length) {
+            const response = await fetch('words.json');
+            const data = await response.json();
+            const words = data[length] || data["5"];
+            const randomIndex = Math.floor(Math.random() * words.length);
+            return words[randomIndex];
+        }
+
+        // Обработка запросов
+        self.addEventListener('fetch', event => {
+            const url = new URL(event.request.url);
+            if (url.pathname === '/word') {
+                event.respondWith(handleWordRequest(url));
+            }
+        });
+
+        async function handleWordRequest(url) {
+            const length = url.searchParams.get('length') || '5';
+            const word = await getRandomWord(length);
+            return new Response(JSON.stringify({word: word}), {
+                headers: {'Content-Type': 'application/json'}
+            });
+        }
+    </script>
+</body>
+</html>
